@@ -1,9 +1,6 @@
 FROM centos:7
 MAINTAINER Slawomir Rozbicki <docker@rozbicki.eu>
 
-ENV http_proxy http://10.150.6.190:9090
-ENV https_proxy http://10.150.6.190:9090
-
 # Specify program
 ENV PROG bro
 ENV PF_PROG PF_RING
@@ -22,8 +19,6 @@ ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PREFIX/bi
 ENV STOR_PATH /data/bro
 # Build faster (make -jX)
 ENV PROC_NUM 4
-
-RUN echo proxy=${http_proxy} >> /etc/yum.conf
 
 # Bro deps
 RUN yum update -y && yum install -y wget gperftools geoip file zlib openssh-clients rsync
