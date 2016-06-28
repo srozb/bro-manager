@@ -1,4 +1,4 @@
-FROM centos:7
+FROM phusion/baseimage
 MAINTAINER Slawomir Rozbicki <docker@rozbicki.eu>
 
 # Specify program
@@ -9,7 +9,7 @@ ENV EXT tar.gz
 ENV PF_EXT tar.gz
 ENV CAF_EXT tar.gz
 # Specify Bro version to download and install (e.g. bro-2.3.1, bro-2.4)
-ENV VERS 2.4.1
+ENV BRO_VERS 2.4.1
 ENV PF_VERS 6.2.0
 ENV CAF_VERS 0.14.4
 # Install directory
@@ -24,42 +24,42 @@ ENV STOR_PATH /data/bro
 ENV PROC_NUM 4
 
 # Bro deps
-RUN yum update -y && yum install -y wget gperftools geoip file zlib openssh-clients rsync
+RUN apt-get update -y && apt-get install -y google-perftools libtcmalloc-minimal4 \
+libgoogle-perftools4 geoip-bin geoip-database rsync
 
 # Devels (only for bro build - might be removed later)
-RUN yum install -y gperftools-devel geoip-devel cmake gcc gcc-c++ bison flex python-devel swig file-devel zlib-devel make openssl-devel
+RUN apt-get install --no-install-recommends -y libgoogle-perftools-dev \
+libgeoip-dev cmake gcc g++ bison flex python-dev swig make libssl-dev git
 
 # Build PF_RING
 WORKDIR /usr/src
-RUN wget --no-check-certificate http://downloads.sourceforge.net/project/ntop/PF_RING/$PF_PROG-$PF_VERS.$PF_EXT \
-&& tar -xzf $PF_PROG-$PF_VERS.$PF_EXT
-WORKDIR /usr/src/$PF_PROG-$PF_VERS/userland/lib
+RUN git clone https://github.com/ntop/PF_RING.git
+WORKDIR /usr/src/$PF_PROG/userland/lib
 RUN ./configure && make -j$PROC_NUM
-WORKDIR /usr/src/$PF_PROG-$PF_VERS/userland/libpcap
+WORKDIR /usr/src/$PF_PROG/userland/libpcap
 RUN ./configure --prefix=$PF_PREFIX && make -j$PROC_NUM && make install 
 
 # Build CAF
 WORKDIR /usr/src
-RUN wget --no-check-certificate https://github.com/actor-framework/actor-framework/archive/$CAF_VERS.$CAF_EXT \
-&& tar -xzf $CAF_VERS.$CAF_EXT 
-WORKDIR /usr/src/actor-framework-$CAF_VERS
+RUN git clone https://github.com/actor-framework/actor-framework.git
+WORKDIR /usr/src/actor-framework
 RUN ./configure --prefix=$CAF_PREFIX && make -j$PROC_NUM && make install
 
 # Build Bro
 WORKDIR /usr/src
-RUN wget --no-check-certificate https://www.bro.org/downloads/release/$PROG-$VERS.$EXT && tar -xzf $PROG-$VERS.$EXT
-WORKDIR /usr/src/$PROG-$VERS
-RUN ./configure --prefix=$PREFIX --with-pcap=$PF_PREFIX --enable-broker --with-libcaf=$CAF_PREFIX \
+RUN curl --insecure -O https://www.bro.org/downloads/release/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
+WORKDIR /usr/src/$PROG-$BRO_VERS
+RUN ./configure --prefix=$PREFIX --with-pcap=$PF_PREFIX --with-libcaf=$CAF_PREFIX \
 && make -j$PROC_NUM && make install && make install-aux
 
 # Get the GeoIP data, prepare the storage & misc tunning.
-RUN geoipupdate && mkdir -p ${STOR_PATH}/logs ${STOR_PATH}/spool \
+RUN mkdir -p ${STOR_PATH}/logs ${STOR_PATH}/spool \
 && sed -i 's/^LogDir = \/opt\/bro/LogDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg\
 && sed -i 's/^SpoolDir = \/opt\/bro/SpoolDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg
 
 # Clean up.
 #RUN yum remove -y geoip-devel cmake gcc gcc-c++ bison flex python-devel swig file-devel zlib-devel make \
-#&& rm -rf /usr/src/* && rm -rf /var/cache/yum/*
+#&& rm -rf /usr/src/*
 
 CMD ["/usr/bin/python", "/opt/bro/bin/broctl"]
 
