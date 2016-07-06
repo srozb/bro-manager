@@ -54,10 +54,12 @@ RUN mkdir -p ${STOR_PATH}/logs ${STOR_PATH}/spool \
 && sed -i 's/^LogDir = \/opt\/bro/LogDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg\
 && sed -i 's/^SpoolDir = \/opt\/bro/SpoolDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg
 
-# Clean up.
-RUN apt-get remove -y libgoogle-perftools-dev libgeoip-dev cmake gcc g++ \
-bison flex python-dev swig make libssl-dev git && apt-get autoremove -y \
-&& apt-get autoclean -y
+# Clean up. # might break broccoli python binding
+#RUN apt-get remove -y libgoogle-perftools-dev libgeoip-dev cmake gcc g++ \
+#bison flex python-dev swig make libssl-dev git && apt-get autoremove -y \
+#&& apt-get autoclean -y
+
+WORKDIR /opt/bro
 
 CMD ["/usr/bin/python", "/opt/bro/bin/broctl"]
 
