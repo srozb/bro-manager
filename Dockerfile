@@ -62,7 +62,7 @@ RUN apt-get clean
 
 WORKDIR /opt/bro
 
-RUN echo "0-59/5 * * * *  docker exec bro-web-manager /opt/bro/bin/broctl cron 1> /dev/null" > /etc/crontab
+RUN echo "0-59/5 * * * * root docker exec bro-web-manager /opt/bro/bin/broctl cron 1> /dev/null" > /etc/crontab
 RUN sed -i 's/^exit 0/\/opt\/bro\/bin\/broctl deploy | logger -t broctl\n\nexit 0/g' /etc/rc.local
 
 CMD ["/sbin/my_init"]
