@@ -1,4 +1,4 @@
-FROM phusion/baseimage
+FROM phusion/baseimage:0.9.19
 MAINTAINER Slawomir Rozbicki <docker@rozbicki.eu>
 
 # Specify program
@@ -55,11 +55,15 @@ RUN mkdir -p ${STOR_PATH}/logs ${STOR_PATH}/spool \
 && sed -i 's/^SpoolDir = \/opt\/bro/SpoolDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg
 
 # Clean up. # might break broccoli python binding
+RUN apt-get clean
 #RUN apt-get remove -y libgoogle-perftools-dev libgeoip-dev cmake gcc g++ \
 #bison flex python-dev swig make libssl-dev git && apt-get autoremove -y \
 #&& apt-get autoclean -y
 
 WORKDIR /opt/bro
 
-CMD ["/usr/bin/python", "/opt/bro/bin/broctl"]
+RUN echo "0-59/5 * * * *  docker exec bro-web-manager /opt/bro/bin/broctl cron 1> /dev/null" > /etc/crontab
+RUN sed -i 's/exit 0//opt/bro/bin/broctl deploy\n\nexit 0/g' /etc/rc.local
+
+CMD ["/sbin/my_init"]
 
