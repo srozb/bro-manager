@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.19
+FROM phusion/baseimage:0.9.18
 MAINTAINER Slawomir Rozbicki <docker@rozbicki.eu>
 
 # Specify program
@@ -22,7 +22,7 @@ ENV PROC_NUM 4
 # Bro deps
 RUN apt-get update -y && apt-get install --no-install-recommends -y \
 google-perftools libtcmalloc-minimal4 libgoogle-perftools4 geoip-bin \
-geoip-database rsync ssmtp net-tools
+geoip-database rsync ssmtp
 
 # Devels (only for bro build - might be removed later)
 RUN apt-get install --no-install-recommends -y libgoogle-perftools-dev \
