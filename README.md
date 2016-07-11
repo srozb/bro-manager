@@ -1,6 +1,6 @@
 # bro-manager docker container
 
-This repo contains everything that is needed to run the (Bro Network Security Monitor)[https://www.bro.org/] manager node in the docker environment. This way you can easily set up Bro cluster having dockerized manager node, and number of workers running on physical machines (pfring enabled) - all managed from a single docker. 
+This repo contains everything that is needed to run the [Bro Network Security Monitor](https://www.bro.org/) manager node in the docker environment. This way you can easily set up Bro cluster having dockerized manager node, and number of workers running on physical machines (pfring enabled) - all managed from a single docker. 
 
 ## FAQ
 
@@ -16,7 +16,7 @@ Bear in mind that you need to prepare worker machines before starting the bro-ma
 
 ### Why phusion/baseimage base?
 
-Phusion/baseimage does a couple of things for you. First of all it solves (zombie reaping problem)[https://blog.phusion.nl/2015/01/20/docker-and-the-pid-1-zombie-reaping-problem/]. Moreover it support internal cron daemon that keeps bro running in case of crashes. Read more (here)[https://github.com/phusion/baseimage-docker].
+Phusion/baseimage does a couple of things for you. First of all it solves [zombie reaping problem](https://blog.phusion.nl/2015/01/20/docker-and-the-pid-1-zombie-reaping-problem/). Moreover it support internal cron daemon that keeps bro running in case of crashes. Read more [here](https://github.com/phusion/baseimage-docker).
 
 ### How to prepare a worker machine?
 
@@ -65,10 +65,10 @@ worker-3     worker  10.0.0.100       running   14577  2      11 Jul 16:00:32
 
 ## Additional resources 
 
-* (Phusion/baseimage)[https://github.com/phusion/baseimage-docker]
-* (Bro documentation)[https://www.bro.org/documentation/index.html]
-* (PF_RING site)[http://www.ntop.org/products/packet-capture/pf_ring/]
-* (Bro cluster configuration)[https://www.bro.org/sphinx/configuration/index.html]
-* (My companion criticalstack-intel client docker repo)[https://github.com/srozb/criticalstack-client]
+* [Phusion/baseimage](https://github.com/phusion/baseimage-docker)
+* [Bro documentation](https://www.bro.org/documentation/index.html)
+* [PF_RING site](http://www.ntop.org/products/packet-capture/pf_ring/)
+* [Bro cluster configuration](https://www.bro.org/sphinx/configuration/index.html)
+* [My companion criticalstack-intel client docker repo](https://github.com/srozb/criticalstack-client)
 
 
