@@ -16,7 +16,6 @@ ENV CAF_PREFIX /opt/caf
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PREFIX/bin
 # Storage prefix
 ENV STOR_PATH /data/bro
-# Build faster (make -jX)
 
 # Bro deps
 RUN apt-get update -y && apt-get install --no-install-recommends -y \
@@ -49,7 +48,6 @@ RUN ./configure --prefix=$PREFIX --with-pcap=$PF_PREFIX --with-libcaf=$CAF_PREFI
 && make && make install && make install-aux
 
 # Get the GeoIP data, prepare the storage & misc tunning.
-ENV PATH $PREFIX/bin/:$PATH
 ADD ./common/getgeo.sh /usr/local/bin/getgeo.sh
 RUN /usr/local/bin/getgeo.sh
 
