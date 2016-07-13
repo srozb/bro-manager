@@ -30,22 +30,22 @@ libgeoip-dev cmake gcc g++ bison flex python-dev swig make libssl-dev git
 WORKDIR /usr/src
 RUN git clone https://github.com/ntop/PF_RING.git
 WORKDIR /usr/src/$PF_PROG/userland/lib
-RUN ./configure && make -j$PROC_NUM
+RUN ./configure && make 
 WORKDIR /usr/src/$PF_PROG/userland/libpcap
-RUN ./configure --prefix=$PF_PREFIX && make -j$PROC_NUM && make install 
+RUN ./configure --prefix=$PF_PREFIX && make && make install 
 
 # Build CAF
 WORKDIR /usr/src
 RUN git clone https://github.com/actor-framework/actor-framework.git
 WORKDIR /usr/src/actor-framework
-RUN ./configure --prefix=$CAF_PREFIX && make -j$PROC_NUM && make install
+RUN ./configure --prefix=$CAF_PREFIX && make && make install
 
 # Build Bro
 WORKDIR /usr/src
 RUN curl --insecure -O https://www.bro.org/downloads/release/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
 WORKDIR /usr/src/$PROG-$BRO_VERS
 RUN ./configure --prefix=$PREFIX --with-pcap=$PF_PREFIX --with-libcaf=$CAF_PREFIX \
-&& make -j$PROC_NUM && make install && make install-aux
+&& make && make install && make install-aux
 
 # Get the GeoIP data, prepare the storage & misc tunning.
 ADD ./common/getgeo.sh /usr/local/bin/getgeo.sh
