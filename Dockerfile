@@ -17,7 +17,6 @@ ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PREFIX/bi
 # Storage prefix
 ENV STOR_PATH /data/bro
 # Build faster (make -jX)
-ENV PROC_NUM 4
 
 # Bro deps
 RUN apt-get update -y && apt-get install --no-install-recommends -y \
@@ -32,38 +31,39 @@ libgeoip-dev cmake gcc g++ bison flex python-dev swig make libssl-dev git
 WORKDIR /usr/src
 RUN git clone https://github.com/ntop/PF_RING.git
 WORKDIR /usr/src/$PF_PROG/userland/lib
-RUN ./configure && make -j$PROC_NUM
+RUN ./configure && make
 WORKDIR /usr/src/$PF_PROG/userland/libpcap
-RUN ./configure --prefix=$PF_PREFIX && make -j$PROC_NUM && make install 
+RUN ./configure --prefix=$PF_PREFIX && make && make install 
 
 # Build CAF
 WORKDIR /usr/src
 RUN git clone https://github.com/actor-framework/actor-framework.git
 WORKDIR /usr/src/actor-framework
-RUN ./configure --prefix=$CAF_PREFIX && make -j$PROC_NUM && make install
+RUN ./configure --prefix=$CAF_PREFIX && make && make install
 
 # Build Bro
 WORKDIR /usr/src
 RUN curl --insecure -O https://www.bro.org/downloads/release/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
 WORKDIR /usr/src/$PROG-$BRO_VERS
 RUN ./configure --prefix=$PREFIX --with-pcap=$PF_PREFIX --with-libcaf=$CAF_PREFIX \
-&& make -j$PROC_NUM && make install && make install-aux
+&& make && make install && make install-aux
 
 # Get the GeoIP data, prepare the storage & misc tunning.
+ENV PATH $PREFIX/bin/:$PATH
+ADD ./common/getgeo.sh /usr/local/bin/getgeo.sh
+RUN /usr/local/bin/getgeo.sh
+
 RUN mkdir -p ${STOR_PATH}/logs ${STOR_PATH}/spool \
 && sed -i 's/^LogDir = \/opt\/bro/LogDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg\
 && sed -i 's/^SpoolDir = \/opt\/bro/SpoolDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg
 
-# Clean up. # might break broccoli python binding
+RUN echo "0-59/5 * * * * root /opt/bro/bin/broctl cron 1> /dev/null" > /etc/crontab \
+&& sed -i 's/^exit 0/\/opt\/bro\/bin\/broctl deploy | logger -t broctl\n\nexit 0/g' /etc/rc.local
+
+# Clean up.
 RUN apt-get clean
-#RUN apt-get remove -y libgoogle-perftools-dev libgeoip-dev cmake gcc g++ \
-#bison flex python-dev swig make libssl-dev git && apt-get autoremove -y \
-#&& apt-get autoclean -y
 
 WORKDIR /opt/bro
-
-RUN echo "0-59/5 * * * * root /opt/bro/bin/broctl cron 1> /dev/null" > /etc/crontab
-RUN sed -i 's/^exit 0/\/opt\/bro\/bin\/broctl deploy | logger -t broctl\n\nexit 0/g' /etc/rc.local
 
 CMD ["/sbin/my_init"]
 
