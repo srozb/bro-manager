@@ -16,8 +16,6 @@ ENV CAF_PREFIX /opt/caf
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PREFIX/bin
 # Storage prefix
 ENV STOR_PATH /data/bro
-# Build faster (make -jX)
-ENV PROC_NUM 4
 
 # Bro deps
 RUN apt-get update -y && apt-get install --no-install-recommends -y \
@@ -50,20 +48,20 @@ RUN ./configure --prefix=$PREFIX --with-pcap=$PF_PREFIX --with-libcaf=$CAF_PREFI
 && make -j$PROC_NUM && make install && make install-aux
 
 # Get the GeoIP data, prepare the storage & misc tunning.
+ADD ./common/getgeo.sh /usr/local/bin/getgeo.sh
+RUN /usr/local/bin/getgeo.sh
+
 RUN mkdir -p ${STOR_PATH}/logs ${STOR_PATH}/spool \
 && sed -i 's/^LogDir = \/opt\/bro/LogDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg\
 && sed -i 's/^SpoolDir = \/opt\/bro/SpoolDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg
 
+RUN echo "0-59/5 * * * * root /opt/bro/bin/broctl cron 1> /dev/null" > /etc/crontab \
+&& sed -i 's/^exit 0/\/opt\/bro\/bin\/broctl deploy 2>&1 | logger -t broctl\n\nexit 0/g' /etc/rc.local
+
 # Clean up. # might break broccoli python binding
 RUN apt-get clean
-#RUN apt-get remove -y libgoogle-perftools-dev libgeoip-dev cmake gcc g++ \
-#bison flex python-dev swig make libssl-dev git && apt-get autoremove -y \
-#&& apt-get autoclean -y
 
 WORKDIR /opt/bro
-
-RUN echo "0-59/5 * * * * root /opt/bro/bin/broctl cron 1> /dev/null" > /etc/crontab
-RUN sed -i 's/^exit 0/\/opt\/bro\/bin\/broctl deploy | logger -t broctl\n\nexit 0/g' /etc/rc.local
 
 CMD ["/sbin/my_init"]
 
