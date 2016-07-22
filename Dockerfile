@@ -56,7 +56,7 @@ RUN mkdir -p ${STOR_PATH}/logs ${STOR_PATH}/spool \
 && sed -i 's/^SpoolDir = \/opt\/bro/SpoolDir = \/data\/bro/g' ${PREFIX}/etc/broctl.cfg
 
 RUN echo "0-59/5 * * * * root /opt/bro/bin/broctl cron 1> /dev/null" > /etc/crontab \
-&& sed -i 's/^exit 0/\/opt\/bro\/bin\/broctl deploy 2>&1 | logger -t broctl\n\nexit 0/g' /etc/rc.local
+&& sed -i 's/^exit 0/\/opt\/bro\/bin\/broctl deploy | logger -t broctl\n\nexit 0/g' /etc/rc.local
 
 # Clean up. # might break broccoli python binding
 RUN apt-get clean
