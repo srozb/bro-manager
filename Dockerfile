@@ -7,7 +7,7 @@ ENV PF_PROG PF_RING
 # Specify source extension
 ENV EXT tar.gz
 # Specify Bro version to download and install (e.g. bro-2.3.1, bro-2.4)
-ENV BRO_VERS 2.4.1
+ENV BRO_VERS 2.5-beta
 # Install directory
 ENV PREFIX /opt/bro
 ENV PF_PREFIX /opt/PF_RING
@@ -30,9 +30,9 @@ libgeoip-dev cmake gcc g++ bison flex python-dev swig make libssl-dev git
 WORKDIR /usr/src
 RUN git clone https://github.com/ntop/PF_RING.git
 WORKDIR /usr/src/$PF_PROG/userland/lib
-RUN ./configure && make 
+RUN ./configure && make
 WORKDIR /usr/src/$PF_PROG/userland/libpcap
-RUN ./configure --prefix=$PF_PREFIX && make && make install 
+RUN ./configure --prefix=$PF_PREFIX && make && make install
 
 # Build CAF
 WORKDIR /usr/src
@@ -42,7 +42,7 @@ RUN ./configure --prefix=$CAF_PREFIX && make && make install
 
 # Build Bro
 WORKDIR /usr/src
-RUN curl --insecure -O https://www.bro.org/downloads/release/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
+RUN curl --insecure -O https://www.bro.org/downloads/beta/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
 WORKDIR /usr/src/$PROG-$BRO_VERS
 RUN ./configure --prefix=$PREFIX --with-pcap=$PF_PREFIX --with-libcaf=$CAF_PREFIX \
 && make && make install && make install-aux
@@ -64,4 +64,3 @@ RUN apt-get clean
 WORKDIR /opt/bro
 
 CMD ["/sbin/my_init"]
-
