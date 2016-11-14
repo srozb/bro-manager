@@ -7,7 +7,7 @@ ENV PF_PROG PF_RING
 # Specify source extension
 ENV EXT tar.gz
 # Specify Bro version to download and install (e.g. bro-2.3.1, bro-2.4)
-ENV BRO_VERS 2.5-beta
+ENV BRO_VERS 2.5-beta2
 # Install directory
 ENV PREFIX /opt/bro
 ENV PF_PREFIX /opt/PF_RING
