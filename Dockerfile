@@ -6,8 +6,8 @@ ENV PROG bro
 ENV PF_PROG PF_RING
 # Specify source extension
 ENV EXT tar.gz
-# Specify Bro version to download and install (e.g. bro-2.3.1, bro-2.4)
-ENV BRO_VERS 2.5-beta2
+# Specify Bro version to download and install (e.g. bro-2.3.1, bro-2.4, bro-2.5)
+ENV BRO_VERS 2.5
 # Install directory
 ENV PREFIX /opt/bro
 ENV PF_PREFIX /opt/PF_RING
@@ -40,7 +40,7 @@ RUN ./configure --prefix=$CAF_PREFIX && make && make install
 
 # Build Bro
 WORKDIR /usr/src
-RUN curl --insecure -O https://www.bro.org/downloads/beta/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
+RUN curl --insecure -O https://www.bro.org/downloads/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
 WORKDIR /usr/src/$PROG-$BRO_VERS
 RUN ./configure --prefix=$PREFIX --with-libcaf=$CAF_PREFIX \
 && make && make install && make install-aux
