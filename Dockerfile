@@ -28,9 +28,12 @@ libgeoip-dev cmake gcc g++ bison flex python-dev swig make libssl-dev git \
 libpcap-dev
 
 # Build PF_RING
-WORKDIR /opt
-RUN curl --insecure -O http://packages.ntop.org/apt-stable/16.04/all/apt-ntop-stable.deb \
-&& dpkg -i apt-ntop-stable.deb && apt-get update && apt-get -y install pfring
+WORKDIR /usr/src
+RUN git clone https://github.com/ntop/PF_RING.git
+WORKDIR /usr/src/$PF_PROG/userland/lib
+RUN ./configure && make
+WORKDIR /usr/src/$PF_PROG/userland/libpcap
+RUN ./configure --prefix=$PF_PREFIX && make && make install
 
 # Build CAF
 WORKDIR /usr/src
@@ -41,15 +44,9 @@ RUN ./configure --prefix=$CAF_PREFIX && make && make install
 # Build Bro
 WORKDIR /usr/src
 RUN curl --insecure -O https://www.bro.org/downloads/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
-WORKDIR /usr/src/$PROG-$BRO_VERS
-RUN ./configure --prefix=$PREFIX --with-libcaf=$CAF_PREFIX \
+WORKDIR /usr/src/$PROG-$BRO_VERSa
+RUN ./configure --prefix=$PREFIX --with-libcaf=$CAF_PREFIX --with-pcap=$PF_PREFIX \
 && make && make install && make install-aux
-
-# Build Bro pf_ring plugin
-WORKDIR /usr/src
-RUN git clone https://github.com/bro/bro-plugins.git
-WORKDIR /usr/src/bro-plugins/pf_ring
-RUN ./configure --bro-dist=/usr/src/$PROG-$BRO_VERS && make && make install
 
 # Get the GeoIP data, prepare the storage & misc tunning.
 ADD ./common/getgeo.sh /usr/local/bin/getgeo.sh
