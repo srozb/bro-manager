@@ -44,7 +44,7 @@ RUN ./configure --prefix=$CAF_PREFIX && make && make install
 # Build Bro
 WORKDIR /usr/src
 RUN curl --insecure -O https://www.bro.org/downloads/$PROG-$BRO_VERS.$EXT && tar -xzf $PROG-$BRO_VERS.$EXT
-WORKDIR /usr/src/$PROG-$BRO_VERSa
+WORKDIR /usr/src/$PROG-$BRO_VERS
 RUN ./configure --prefix=$PREFIX --with-libcaf=$CAF_PREFIX --with-pcap=$PF_PREFIX \
 && make && make install && make install-aux
 
